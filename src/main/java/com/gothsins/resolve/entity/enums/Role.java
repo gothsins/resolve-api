@@ -1,0 +1,22 @@
+package com.gothsins.resolve.entity.enums;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
+public enum Role {
+
+    USER,
+    AGENT,
+    ADMIN;
+
+    @JsonValue
+    public String toValue() {
+        return name();
+    }
+
+    @JsonCreator
+    public static Role from(String value) {
+        if (value == null) return null;
+        return Role.valueOf(value.trim().toUpperCase());
+    }
+}
