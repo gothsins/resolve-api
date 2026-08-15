@@ -4,6 +4,7 @@ import com.gothsins.resolve.entity.enums.TicketPriority;
 import com.gothsins.resolve.entity.enums.TicketStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 @Getter
@@ -12,7 +13,9 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class TicketRequestDTO {
+
     @NotBlank
+    @Size(max = 150)
     private String title;
 
     @NotBlank

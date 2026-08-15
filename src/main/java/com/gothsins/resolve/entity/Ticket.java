@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @Builder
-
 public class Ticket {
 
     @Id
@@ -34,9 +33,10 @@ public class Ticket {
     @Column(nullable = false)
     private TicketStatus status = TicketStatus.OPEN;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TicketPriority priority;
+    private TicketPriority priority = TicketPriority.MEDIUM;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "category_id", nullable = false)
