@@ -17,7 +17,6 @@ public class TicketController {
 
     @PostMapping
     public ResponseEntity<TicketResponseDTO> create(@Valid @RequestBody TicketRequestDTO dto) {
-        TicketResponseDTO response = ticketService.create(dto);
-        return ResponseEntity.status(201).body(response);
+        return ResponseEntity.status(201).body(ticketService.create(dto));
     }
 }
