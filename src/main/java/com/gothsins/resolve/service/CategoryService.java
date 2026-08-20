@@ -4,9 +4,11 @@ package com.gothsins.resolve.service;
 import com.gothsins.resolve.dto.CategoryRequestDTO;
 import com.gothsins.resolve.dto.CategoryResponseDTO;
 import com.gothsins.resolve.entity.Category;
+import com.gothsins.resolve.repository.CategoryRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,7 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CategoryService {
 
-    private final CategoryService categoryService;
+    private final CategoryRepository categoryRepository;
 
     @Transactional
     public CategoryResponseDTO create(CategoryRequestDTO dto) {
