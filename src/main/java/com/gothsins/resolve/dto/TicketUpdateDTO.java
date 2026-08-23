@@ -1,0 +1,30 @@
+package com.gothsins.resolve.dto;
+
+import com.gothsins.resolve.entity.enums.TicketPriority;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.*;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class TicketUpdateDTO {
+
+    @NotBlank
+    @Size(max = 150)
+    private String title;
+
+    @NotBlank
+    private String description;
+
+    @NotNull
+    private TicketPriority priority;
+
+    @NotNull
+    private Long categoryId;
+
+    private Long assignedAgentId;
+}
