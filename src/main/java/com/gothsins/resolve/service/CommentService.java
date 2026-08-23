@@ -44,6 +44,7 @@ public class CommentService {
         return toResponseDTO(saved);
     }
 
+    @Transactional(readOnly = true)
     public CommentResponseDTO findById(Long id) {
         Comment comment = commentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(
@@ -51,6 +52,7 @@ public class CommentService {
         return toResponseDTO(comment);
     }
 
+    @Transactional(readOnly = true)
     public List<CommentResponseDTO> findAll() {
         return commentRepository.findAll().stream()
                 .map(this::toResponseDTO)

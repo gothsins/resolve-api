@@ -1,12 +1,10 @@
 package com.gothsins.resolve.service;
 
-import com.gothsins.resolve.dto.TicketRequestDTO;
-import com.gothsins.resolve.dto.TicketResponseDTO;
-import com.gothsins.resolve.dto.CategoryResponseDTO;
-import com.gothsins.resolve.dto.UserResponseDTO;
+import com.gothsins.resolve.dto.*;
 import com.gothsins.resolve.entity.Category;
 import com.gothsins.resolve.entity.Ticket;
 import com.gothsins.resolve.entity.User;
+import com.gothsins.resolve.entity.enums.TicketStatus;
 import com.gothsins.resolve.repository.CategoryRepository;
 import com.gothsins.resolve.repository.TicketRepository;
 import com.gothsins.resolve.repository.UserRepository;
@@ -15,6 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class TicketService {
@@ -22,6 +23,7 @@ public class TicketService {
     private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final TicketHistoryService ticketHistoryService;
 
     @Transactional
     public TicketResponseDTO create(TicketRequestDTO dto) {
@@ -52,6 +54,78 @@ public class TicketService {
         Ticket saved = ticketRepository.save(ticket);
 
         return toResponseDTO(saved);
+    }
+
+    @Transactional
+    public TicketResponseDTO update(Long id, TicketUpdateDTO dto) {
+        Ticket ticket = ticketRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Ticket não encontrado: id " + id));
+
+        Category category = categoryRepository.findById(dto.getCategoryId())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Categoria não encontrada: id " + dto.getCategoryId()));
+
+        User assignedAgent = null;
+        if (dto.getAssignedAgentId() != null) {
+            assignedAgent = userRepository.findById(dto.getAssignedAgentId())
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Agente não encontrado: id " + dto.getAssignedAgentId()));
+        }
+
+        ticket.setTitle(dto.getTitle());
+        ticket.setDescription(dto.getDescription());
+        ticket.setPriority(dto.getPriority());
+        ticket.setCategory(category);
+        ticket.setAssignedAgent(assignedAgent);
+
+        Ticket updated = ticketRepository.save(ticket);
+        return toResponseDTO(updated);
+    }
+
+    @Transactional
+    public TicketResponseDTO changeStatus(Long id, ChangeStatusDTO dto) {
+        Ticket ticket = ticketRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Ticket não encontrado: id " + id));
+
+        User user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Usuário não encontrado: id " + dto.getUserId()));
+
+        TicketStatus oldStatus = ticket.getStatus();
+        TicketStatus newStatus = dto.getNewStatus();
+
+        ticket.setStatus(newStatus);
+
+        if (newStatus == TicketStatus.RESOLVED) {
+            ticket.setResolvedAt(LocalDateTime.now());
+        }
+        if (newStatus == TicketStatus.CLOSED) {
+            ticket.setClosedAt(LocalDateTime.now());
+        }
+
+        Ticket updated = ticketRepository.save(ticket);
+
+        ticketHistoryService.registerChange(
+                updated, user, "STATUS_CHANGE", oldStatus.name(), newStatus.name());
+
+        return toResponseDTO(updated);
+    }
+
+    @Transactional(readOnly = true)
+    public TicketResponseDTO findById(Long id) {
+        Ticket ticket = ticketRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Ticket não encontrado: id " + id));
+        return toResponseDTO(ticket);
+    }
+
+    @Transactional(readOnly = true)
+    public List<TicketResponseDTO> findAll() {
+        return ticketRepository.findAll().stream()
+                .map(this::toResponseDTO)
+                .toList();
     }
 
     private TicketResponseDTO toResponseDTO(Ticket ticket) {
