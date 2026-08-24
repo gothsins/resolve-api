@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum Role {
 
-    USER,
+    REQUESTER,
     AGENT,
     ADMIN;
 
