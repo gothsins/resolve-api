@@ -4,6 +4,7 @@ import com.gothsins.resolve.dto.UserRequestDTO;
 import com.gothsins.resolve.dto.UserResponseDTO;
 import com.gothsins.resolve.entity.User;
 import com.gothsins.resolve.exception.ResourceNotFoundException;
+import com.gothsins.resolve.exception.IllegalArgumentException;
 import com.gothsins.resolve.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
