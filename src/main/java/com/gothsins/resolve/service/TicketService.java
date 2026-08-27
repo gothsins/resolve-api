@@ -5,10 +5,10 @@ import com.gothsins.resolve.entity.Category;
 import com.gothsins.resolve.entity.Ticket;
 import com.gothsins.resolve.entity.User;
 import com.gothsins.resolve.entity.enums.TicketStatus;
+import com.gothsins.resolve.exception.ResourceNotFoundException;
 import com.gothsins.resolve.repository.CategoryRepository;
 import com.gothsins.resolve.repository.TicketRepository;
 import com.gothsins.resolve.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,17 +28,17 @@ public class TicketService {
     @Transactional
     public TicketResponseDTO create(TicketRequestDTO dto) {
         Category category = categoryRepository.findById(dto.getCategoryId())
-                .orElseThrow(() -> new EntityNotFoundException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Categoria não encontrada: id " + dto.getCategoryId()));
 
         User requester = userRepository.findById(dto.getRequesterId())
-                .orElseThrow(() -> new EntityNotFoundException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Usuário (requester) não encontrado: id " + dto.getRequesterId()));
 
         User assignedAgent = null;
         if (dto.getAssignedAgentId() != null) {
             assignedAgent = userRepository.findById(dto.getAssignedAgentId())
-                    .orElseThrow(() -> new EntityNotFoundException(
+                    .orElseThrow(() -> new ResourceNotFoundException(
                             "Agente não encontrado: id " + dto.getAssignedAgentId()));
         }
 
@@ -59,17 +59,17 @@ public class TicketService {
     @Transactional
     public TicketResponseDTO update(Long id, TicketUpdateDTO dto) {
         Ticket ticket = ticketRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Ticket não encontrado: id " + id));
 
         Category category = categoryRepository.findById(dto.getCategoryId())
-                .orElseThrow(() -> new EntityNotFoundException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Categoria não encontrada: id " + dto.getCategoryId()));
 
         User assignedAgent = null;
         if (dto.getAssignedAgentId() != null) {
             assignedAgent = userRepository.findById(dto.getAssignedAgentId())
-                    .orElseThrow(() -> new EntityNotFoundException(
+                    .orElseThrow(() -> new ResourceNotFoundException(
                             "Agente não encontrado: id " + dto.getAssignedAgentId()));
         }
 
@@ -86,11 +86,11 @@ public class TicketService {
     @Transactional
     public TicketResponseDTO changeStatus(Long id, ChangeStatusDTO dto) {
         Ticket ticket = ticketRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Ticket não encontrado: id " + id));
 
         User user = userRepository.findById(dto.getUserId())
-                .orElseThrow(() -> new EntityNotFoundException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Usuário não encontrado: id " + dto.getUserId()));
 
         TicketStatus oldStatus = ticket.getStatus();
@@ -116,7 +116,7 @@ public class TicketService {
     @Transactional(readOnly = true)
     public TicketResponseDTO findById(Long id) {
         Ticket ticket = ticketRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Ticket não encontrado: id " + id));
         return toResponseDTO(ticket);
     }
