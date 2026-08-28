@@ -3,8 +3,8 @@ package com.gothsins.resolve.service;
 import com.gothsins.resolve.dto.UserRequestDTO;
 import com.gothsins.resolve.dto.UserResponseDTO;
 import com.gothsins.resolve.entity.User;
+import com.gothsins.resolve.exception.InvalidRequestException;
 import com.gothsins.resolve.exception.ResourceNotFoundException;
-import com.gothsins.resolve.exception.IllegalArgumentException;
 import com.gothsins.resolve.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -55,14 +55,14 @@ public class UserService {
                         "Usuário não encontrado: id " + userId));
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new IllegalArgumentException("Senha atual incorreta");
+            throw new InvalidRequestException("Senha atual incorreta");
         }
 
         if (newPassword == null || newPassword.isBlank()) {
-            throw new IllegalArgumentException("Nova senha inválida");
+            throw new InvalidRequestException("Nova senha inválida");
         }
         if (newPassword.equals(password)) {
-            throw new IllegalArgumentException("A nova senha deve ser diferente da atual");
+            throw new InvalidRequestException("A nova senha deve ser diferente da atual");
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));

@@ -3,9 +3,14 @@ package com.gothsins.resolve.controller;
 import com.gothsins.resolve.dto.ChangePasswordDTO;
 import com.gothsins.resolve.dto.UserRequestDTO;
 import com.gothsins.resolve.dto.UserResponseDTO;
+import com.gothsins.resolve.service.RateLimitService;
 import com.gothsins.resolve.service.UserService;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.map.IMap;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,10 +22,24 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final RateLimitService rateLimitService;
+
 
     @PostMapping
-    public ResponseEntity<UserResponseDTO> create(@Valid @RequestBody UserRequestDTO dto) {
-        return ResponseEntity.status(201).body(userService.create(dto));
+    public ResponseEntity<UserResponseDTO> create(
+            @Valid @RequestBody UserRequestDTO dto,
+            HttpServletRequest request) {
+
+        String ip = request.getRemoteAddr();
+
+        if (!rateLimitService.allowUserCreation(ip)) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .build();
+        }
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(userService.create(dto));
     }
 
     @GetMapping("/{id}")
