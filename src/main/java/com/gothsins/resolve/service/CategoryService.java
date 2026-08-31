@@ -4,11 +4,10 @@ package com.gothsins.resolve.service;
 import com.gothsins.resolve.dto.CategoryRequestDTO;
 import com.gothsins.resolve.dto.CategoryResponseDTO;
 import com.gothsins.resolve.entity.Category;
+import com.gothsins.resolve.exception.ResourceNotFoundException;
 import com.gothsins.resolve.repository.CategoryRepository;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,7 +29,7 @@ public class CategoryService {
     }
     public CategoryResponseDTO findById(Long id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Categoria não encontrada: id " + id));
         return toResponseDTO(category);
     }
@@ -42,7 +41,7 @@ public class CategoryService {
     @Transactional
     public CategoryResponseDTO update(Long id, CategoryRequestDTO dto) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Categoria não encontrada: id " + id));
 
         category.setName(dto.getName());
@@ -53,7 +52,7 @@ public class CategoryService {
     @Transactional
     public void delete(Long id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Categoria não encontrada: id " + id));
         categoryRepository.delete(category);
     }

@@ -5,8 +5,8 @@ import com.gothsins.resolve.dto.UserResponseDTO;
 import com.gothsins.resolve.entity.Ticket;
 import com.gothsins.resolve.entity.TicketHistory;
 import com.gothsins.resolve.entity.User;
+import com.gothsins.resolve.exception.ResourceNotFoundException;
 import com.gothsins.resolve.repository.TicketHistoryRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +35,7 @@ public class TicketHistoryService {
     @Transactional(readOnly = true)
     public TicketHistoryResponseDTO findById(Long id) {
         TicketHistory history = ticketHistoryRepository.findByWithTicket(id)
-                .orElseThrow(() -> new EntityNotFoundException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Histórico não encontrado: id " + id));
         return toResponseDTO(history);
     }

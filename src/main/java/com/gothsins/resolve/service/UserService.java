@@ -3,9 +3,9 @@ package com.gothsins.resolve.service;
 import com.gothsins.resolve.dto.UserRequestDTO;
 import com.gothsins.resolve.dto.UserResponseDTO;
 import com.gothsins.resolve.entity.User;
-import com.gothsins.resolve.entity.enums.Role;
+import com.gothsins.resolve.exception.InvalidRequestException;
+import com.gothsins.resolve.exception.ResourceNotFoundException;
 import com.gothsins.resolve.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -38,7 +38,7 @@ public class UserService {
     @Transactional
     public UserResponseDTO update(Long id, UserRequestDTO dto) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Usuário não encontrado: id " + id));
 
         user.setName(dto.getName());
@@ -51,18 +51,18 @@ public class UserService {
     @Transactional
     public UserResponseDTO updatePassword(Long userId, String password, String newPassword) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Usuário não encontrado: id " + userId));
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new IllegalArgumentException("Senha atual incorreta");
+            throw new InvalidRequestException("Senha atual incorreta");
         }
 
         if (newPassword == null || newPassword.isBlank()) {
-            throw new IllegalArgumentException("Nova senha inválida");
+            throw new InvalidRequestException("Nova senha inválida");
         }
         if (newPassword.equals(password)) {
-            throw new IllegalArgumentException("A nova senha deve ser diferente da atual");
+            throw new InvalidRequestException("A nova senha deve ser diferente da atual");
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));
@@ -72,7 +72,7 @@ public class UserService {
 
     public UserResponseDTO findById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Usuário não encontrado: id " + id));
         return toResponseDTO(user);
     }
@@ -86,7 +86,7 @@ public class UserService {
     @Transactional
     public void deactivate(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Usuário não encontrado: id " + id));
 
         user.setActive(false);
