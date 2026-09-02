@@ -21,6 +21,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final MetricsService metricsService;
 
     @Transactional
     public UserResponseDTO create(UserRequestDTO dto) {
@@ -31,7 +32,7 @@ public class UserService {
                 .build();
 
         User saved = userRepository.save(user);
-
+        metricsService.incrementUserRegistered();
         return toResponseDTO(saved);
     }
 

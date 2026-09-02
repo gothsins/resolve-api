@@ -24,6 +24,7 @@ public class TicketService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final TicketHistoryService ticketHistoryService;
+    private final MetricsService metricsService;
 
     @Transactional
     public TicketResponseDTO create(TicketRequestDTO dto) {
@@ -52,6 +53,7 @@ public class TicketService {
                 .build();
 
         Ticket saved = ticketRepository.save(ticket);
+        metricsService.incrementTicketCreated(saved.getPriority());
 
         return toResponseDTO(saved);
     }
@@ -109,6 +111,7 @@ public class TicketService {
 
         ticketHistoryService.registerChange(
                 updated, user, "STATUS_CHANGE", oldStatus.name(), newStatus.name());
+        metricsService.incrementTicketStatusChanged(oldStatus.name(), newStatus.name());
 
         return toResponseDTO(updated);
     }
@@ -149,6 +152,7 @@ public class TicketService {
         return CategoryResponseDTO.builder()
                 .id(category.getId())
                 .name(category.getName())
+                .active(category.getActive())
                 .build();
     }
 
@@ -156,6 +160,10 @@ public class TicketService {
         return UserResponseDTO.builder()
                 .id(user.getId())
                 .name(user.getName())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .active(user.getActive())
+                .createdAt(user.getCreatedAt())
                 .build();
     }
 }
