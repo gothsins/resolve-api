@@ -1,6 +1,5 @@
 package com.gothsins.resolve.service;
 
-import com.gothsins.resolve.entity.Ticket;
 import com.gothsins.resolve.entity.enums.SlaStatus;
 import com.gothsins.resolve.entity.enums.TicketPriority;
 import com.gothsins.resolve.repository.TicketRepository;

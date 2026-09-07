@@ -61,4 +61,7 @@ public class Ticket {
 
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
+
+    @Column(name = "sla_deadline", nullable = false)
+    private LocalDateTime slaDeadline;
 }
