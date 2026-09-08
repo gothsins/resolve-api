@@ -25,6 +25,7 @@ public class TicketService {
     private final CategoryRepository categoryRepository;
     private final TicketHistoryService ticketHistoryService;
     private final MetricsService metricsService;
+    private final SlaService slaService;
 
     @Transactional
     public TicketResponseDTO create(TicketRequestDTO dto) {
@@ -50,6 +51,7 @@ public class TicketService {
                 .category(category)
                 .requester(requester)
                 .assignedAgent(assignedAgent)
+                .slaDeadline(LocalDateTime.now().plus(dto.getPriority().getSlaDuration()))
                 .build();
 
         Ticket saved = ticketRepository.save(ticket);
@@ -145,6 +147,8 @@ public class TicketService {
                 .updatedAt(ticket.getUpdatedAt())
                 .resolvedAt(ticket.getResolvedAt())
                 .closedAt(ticket.getClosedAt())
+                .slaDeadline(ticket.getSlaDeadline())
+                .slaStatus(slaService.calculateStatus(ticket))
                 .build();
     }
 
