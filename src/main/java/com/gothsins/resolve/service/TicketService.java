@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -104,6 +105,8 @@ public class TicketService {
 
         if (newStatus == TicketStatus.RESOLVED) {
             ticket.setResolvedAt(LocalDateTime.now());
+            Duration resolutionTime = Duration.between(ticket.getCreatedAt(), ticket.getResolvedAt());
+            metricsService.recordResolutionTime(ticket.getPriority(), resolutionTime);
         }
         if (newStatus == TicketStatus.CLOSED) {
             ticket.setClosedAt(LocalDateTime.now());

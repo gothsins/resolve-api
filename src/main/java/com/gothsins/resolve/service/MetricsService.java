@@ -5,7 +5,10 @@ import com.gothsins.resolve.entity.enums.TicketPriority;
 import com.gothsins.resolve.repository.TicketRepository;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import org.springframework.stereotype.Service;
+
+import java.time.Duration;
 
 @Service
 public class MetricsService {
@@ -26,6 +29,14 @@ public class MetricsService {
         Gauge.builder("tickets.sla.violated", this, MetricsService::countViolatedTickets)
                 .description("Tickets abertos que já violaram o SLA")
                 .register(meterRegistry);
+    }
+
+    public void recordResolutionTime(TicketPriority priority, Duration duration) {
+        Timer.builder("tickets.resolution.time")
+                .description("Tempo entre criação e resolução do ticket")
+                .tag("priority", priority.name())
+                .register(meterRegistry)
+                .record(duration);
     }
 
     public void incrementTicketCreated(TicketPriority priority) {
