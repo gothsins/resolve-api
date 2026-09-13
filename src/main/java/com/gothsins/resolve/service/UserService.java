@@ -46,6 +46,10 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Usuário não encontrado: id " + id));
 
+        if (!user.getEmail().equals(dto.getEmail()) && userRepository.existsByEmail(dto.getEmail())) {
+            throw new DuplicateResourceException("Email já cadastrado: " + dto.getEmail());
+        }
+
         user.setName(dto.getName());
         user.setEmail(dto.getEmail());
 

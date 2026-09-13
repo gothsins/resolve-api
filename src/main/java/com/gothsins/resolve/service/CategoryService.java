@@ -4,6 +4,7 @@ package com.gothsins.resolve.service;
 import com.gothsins.resolve.dto.CategoryRequestDTO;
 import com.gothsins.resolve.dto.CategoryResponseDTO;
 import com.gothsins.resolve.entity.Category;
+import com.gothsins.resolve.exception.DuplicateResourceException;
 import com.gothsins.resolve.exception.ResourceNotFoundException;
 import com.gothsins.resolve.repository.CategoryRepository;
 import jakarta.transaction.Transactional;
@@ -20,6 +21,9 @@ public class CategoryService {
 
     @Transactional
     public CategoryResponseDTO create(CategoryRequestDTO dto) {
+        if (categoryRepository.existsByName(dto.getName())) {
+            throw new DuplicateResourceException("Categoria já existe: " + dto.getName());
+        }
         Category category = Category.builder()
                 .name(dto.getName())
                 .build();
@@ -43,6 +47,10 @@ public class CategoryService {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Categoria não encontrada: id " + id));
+
+        if (!category.getName().equals(dto.getName()) && categoryRepository.existsByName(dto.getName())) {
+            throw new DuplicateResourceException("Categoria já existe: " + dto.getName());
+        }
 
         category.setName(dto.getName());
 
