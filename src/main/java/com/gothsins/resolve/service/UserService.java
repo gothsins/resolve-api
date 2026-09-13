@@ -3,6 +3,7 @@ package com.gothsins.resolve.service;
 import com.gothsins.resolve.dto.UserRequestDTO;
 import com.gothsins.resolve.dto.UserResponseDTO;
 import com.gothsins.resolve.entity.User;
+import com.gothsins.resolve.exception.DuplicateResourceException;
 import com.gothsins.resolve.exception.InvalidRequestException;
 import com.gothsins.resolve.exception.ResourceNotFoundException;
 import com.gothsins.resolve.repository.UserRepository;
@@ -25,6 +26,9 @@ public class UserService {
 
     @Transactional
     public UserResponseDTO create(UserRequestDTO dto) {
+        if (userRepository.existsByEmail(dto.getEmail())) {
+            throw new DuplicateResourceException("Email já cadastrado: " + dto.getEmail());
+        }
         User user = User.builder()
                 .name(dto.getName())
                 .email(dto.getEmail())
