@@ -7,6 +7,7 @@ import com.gothsins.resolve.entity.Comment;
 import com.gothsins.resolve.entity.Ticket;
 import com.gothsins.resolve.entity.User;
 import com.gothsins.resolve.exception.ResourceNotFoundException;
+import com.gothsins.resolve.exception.TooManyRequestsException;
 import com.gothsins.resolve.repository.CommentRepository;
 import com.gothsins.resolve.repository.TicketRepository;
 import com.gothsins.resolve.repository.UserRepository;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -26,6 +28,19 @@ public class CommentService {
 
     @Transactional
     public CommentResponseDTO create(CommentRequestDTO dto) {
+
+        LocalDateTime limitTime = LocalDateTime.now().minusSeconds(30);
+        boolean isSpam = commentRepository.existsByTicketIdAndAuthorIdAndContentAndCreatedAtAfter(
+                dto.getTicketId(),
+                dto.getAuthorId(),
+                dto.getContent().trim(),
+                limitTime
+        );
+
+        if (isSpam) {
+            throw new TooManyRequestsException("Você já enviou este mesmo comentário recentemente neste ticket.");
+        }
+
         Ticket ticket = ticketRepository.findById(dto.getTicketId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Ticket não encontrado: id " + dto.getTicketId()));
