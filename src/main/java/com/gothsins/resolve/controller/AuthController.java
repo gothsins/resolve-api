@@ -65,6 +65,7 @@ public class AuthController {
     @ApiResponse(responseCode = "200", description = "Login bem-sucedido, token JWT retornado")
     @ApiResponse(responseCode = "400", description = "Corpo da requisição inválido (email ou senha ausentes)")
     @ApiResponse(responseCode = "401", description = "Credenciais inválidas")
+    @ApiResponse(responseCode = "409", description = "Email já cadastrado")
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO dto) {
         var authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
