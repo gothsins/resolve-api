@@ -10,6 +10,7 @@ import io.github.bucket4j.grid.hazelcast.HazelcastProxyManager;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import com.hazelcast.core.Hazelcast;
 
 @Configuration
 public class HazelcastConfig {
@@ -26,6 +27,10 @@ public class HazelcastConfig {
         );
 
         return config;
+    }
+    @Bean
+    public HazelcastInstance hazelcastInstance(Config hazelcastConfiguration) {
+        return Hazelcast.newHazelcastInstance(hazelcastConfiguration);
     }
 
     @Bean
