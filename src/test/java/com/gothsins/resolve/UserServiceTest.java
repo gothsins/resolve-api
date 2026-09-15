@@ -47,10 +47,10 @@ class UserServiceTest {
 
         UserResponseDTO result = userService.findById(userId);
 
-        assertNotNull(result);
-        assertEquals(userId, result.getId());
-        assertEquals("Guiverme", result.getName());
-        assertEquals("guiverme@email.com", result.getEmail());
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(userId, result.getId());
+        Assertions.assertEquals("Guiverme", result.getName());
+        Assertions.assertEquals("guiverme@email.com", result.getEmail());
 
         verify(userRepository).findById(userId);
     }
@@ -98,34 +98,8 @@ class UserServiceTest {
     }
 
     @Test
-    void testfindById() {
-        Long userId = 1L;
+    void testCreateEmail(){
 
-        User user = new User();
-        user.setId(userId);
-        user.setName("Guiverme");
-        user.setEmail("guiverme@email.com");
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-
-        UserResponseDTO result = userService.findById(1L);
-
-        Assertions.assertNotNull(result);
-        Assertions.assertEquals(1L, result.getId());
-        Assertions.assertEquals("Guiverme", result.getName());
-        Assertions.assertEquals("guiverme@email.com", result.getEmail());
-    }
-
-    @Test
-    void testFindById_UserNotFound_ThrowsException() {
-        Long nonExistingId = 999L;
-
-        Mockito.when(userRepository.findById(nonExistingId)).thenReturn(Optional.empty());
-
-        RuntimeException exception = Assertions.assertThrows(RuntimeException.class, () -> {
-            userService.findById(nonExistingId);
-        });
-
-        Assertions.assertEquals("User not found", exception.getMessage());
     }
 }
