@@ -3,6 +3,7 @@ package com.gothsins.resolve;
 import com.gothsins.resolve.dto.UserRequestDTO;
 import com.gothsins.resolve.dto.UserResponseDTO;
 import com.gothsins.resolve.entity.User;
+import com.gothsins.resolve.exception.DuplicateResourceException;
 import com.gothsins.resolve.exception.ResourceNotFoundException;
 import com.gothsins.resolve.repository.UserRepository;
 import com.gothsins.resolve.service.MetricsService;
@@ -97,9 +98,23 @@ class UserServiceTest {
         Mockito.verify(metricsService, Mockito.times(1)).incrementUserRegistered();
     }
 
-    @Test
-    void testCreateEmail(){
 
+    void shouldThrowExceptionWhenEmailAlreadyExists() {
+
+        UserRequestDTO dto = new UserRequestDTO();
+        dto.setName("Guiverme");
+        dto.setEmail("guiverme@email.com");
+        dto.setPassword("p12345678");
+
+        when(userRepository.existsByEmail(dto.getEmail()))
+                .thenReturn(true);
+
+        var exception = assertThrows(DuplicateResourceException.class, () -> {
+            userService.create(dto);
+
+        });
+
+        assertTrue(exception.getMessage().contains(dto.getEmail()));
 
     }
 }
