@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -24,6 +25,8 @@ public class TicketService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final TicketHistoryService ticketHistoryService;
+    private final MetricsService metricsService;
+    private final SlaService slaService;
 
     @Transactional
     public TicketResponseDTO create(TicketRequestDTO dto) {
@@ -49,9 +52,11 @@ public class TicketService {
                 .category(category)
                 .requester(requester)
                 .assignedAgent(assignedAgent)
+                .slaDeadline(LocalDateTime.now().plus(dto.getPriority().getSlaDuration()))
                 .build();
 
         Ticket saved = ticketRepository.save(ticket);
+        metricsService.incrementTicketCreated(saved.getPriority());
 
         return toResponseDTO(saved);
     }
@@ -100,6 +105,8 @@ public class TicketService {
 
         if (newStatus == TicketStatus.RESOLVED) {
             ticket.setResolvedAt(LocalDateTime.now());
+            Duration resolutionTime = Duration.between(ticket.getCreatedAt(), ticket.getResolvedAt());
+            metricsService.recordResolutionTime(ticket.getPriority(), resolutionTime);
         }
         if (newStatus == TicketStatus.CLOSED) {
             ticket.setClosedAt(LocalDateTime.now());
@@ -109,6 +116,7 @@ public class TicketService {
 
         ticketHistoryService.registerChange(
                 updated, user, "STATUS_CHANGE", oldStatus.name(), newStatus.name());
+        metricsService.incrementTicketStatusChanged(oldStatus.name(), newStatus.name());
 
         return toResponseDTO(updated);
     }
@@ -142,6 +150,8 @@ public class TicketService {
                 .updatedAt(ticket.getUpdatedAt())
                 .resolvedAt(ticket.getResolvedAt())
                 .closedAt(ticket.getClosedAt())
+                .slaDeadline(ticket.getSlaDeadline())
+                .slaStatus(slaService.calculateStatus(ticket))
                 .build();
     }
 
@@ -149,6 +159,7 @@ public class TicketService {
         return CategoryResponseDTO.builder()
                 .id(category.getId())
                 .name(category.getName())
+                .active(category.getActive())
                 .build();
     }
 
@@ -156,6 +167,10 @@ public class TicketService {
         return UserResponseDTO.builder()
                 .id(user.getId())
                 .name(user.getName())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .active(user.getActive())
+                .createdAt(user.getCreatedAt())
                 .build();
     }
 }

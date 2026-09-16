@@ -3,6 +3,7 @@ package com.gothsins.resolve.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -38,5 +39,25 @@ public class GlobalExceptionHandler {
 
         ErrorResponse error = new ErrorResponse(message, 400);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleMalformedRequest(HttpMessageNotReadableException ex) {
+        ErrorResponse error = new ErrorResponse(
+                "Corpo da requisição inválido ou ausente — confira o formato e os valores enviados (ex: prioridade deve ser LOW, MEDIUM, HIGH ou CRITICAL)",
+                HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateResource(DuplicateResourceException ex) {
+        ErrorResponse error = new ErrorResponse(ex.getMessage(), HttpStatus.CONFLICT.value());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    @ExceptionHandler(TooManyRequestsException.class)
+    public ResponseEntity<ErrorResponse> handleTooManyRequests(TooManyRequestsException ex) {
+        ErrorResponse error = new ErrorResponse(ex.getMessage(), HttpStatus.TOO_MANY_REQUESTS.value());
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(error);
     }
 }

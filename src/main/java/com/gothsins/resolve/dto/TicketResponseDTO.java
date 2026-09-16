@@ -1,4 +1,5 @@
 package com.gothsins.resolve.dto;
+import com.gothsins.resolve.entity.enums.SlaStatus;
 import com.gothsins.resolve.entity.enums.TicketPriority;
 import com.gothsins.resolve.entity.enums.TicketStatus;
 import lombok.*;
@@ -25,4 +26,7 @@ public class TicketResponseDTO {
     private LocalDateTime updatedAt;
     private LocalDateTime resolvedAt;
     private LocalDateTime closedAt;
+    private LocalDateTime slaDeadline;
+
+    private SlaStatus slaStatus;
 }
